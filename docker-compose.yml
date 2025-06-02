@@ -1,0 +1,21 @@
+services:
+  # Layanan untuk database PostgreSQL
+  db:
+    image: postgres:14-alpine  # Menggunakan image PostgreSQL resmi yang ringan
+    container_name: expense-tracker-db
+    restart: unless-stopped
+    environment:
+      # Kredensial ini akan digunakan oleh Go untuk terhubung
+      POSTGRES_USER: user_expenses
+      POSTGRES_PASSWORD: password_expenses
+      POSTGRES_DB: db_expenses
+    ports:
+      # Memetakan port 5432 di container ke port 5432 di komputer Anda
+      - "5432:5432"
+    volumes:
+      # Volume ini akan menyimpan data database secara permanen
+      # bahkan jika container dihapus dan dibuat ulang
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

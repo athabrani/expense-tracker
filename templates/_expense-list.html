@@ -1,0 +1,25 @@
+<div id="expense-list">
+    <div class="card">
+        <div class="card-header">Riwayat Pengeluaran</div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Deskripsi</th>
+                        <th scope="col">Jumlah</th>
+                        <th scope="col">Kategori</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .Expenses }}
+                    <tr>
+                        <td>{{ .Description }}</td>
+                        <td>Rp {{ .Amount }}</td>
+                        <td>{{ .Category }}</td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
