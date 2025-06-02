@@ -1,7 +1,6 @@
 # expense-tracker
 expense tracker using GO + HTMX for DevSecOps Final Project
 
-
 # Expense Tracker (Go + HTMX)
 
 Expense Tracker adalah aplikasi web sederhana yang dibangun menggunakan Go untuk backend dan HTMX untuk interaktivitas frontend. Aplikasi ini memungkinkan pengguna untuk mendaftar, login, mencatat pengeluaran harian mereka, dan melihat riwayat pengeluaran mereka. Proyek ini juga mendemonstrasikan beberapa praktik dasar DevSecOps.
@@ -50,7 +49,7 @@ Sebelum memulai, pastikan Anda sudah menginstal perangkat lunak berikut di kompu
 Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di komputer Anda:
 
 1.  **Kloning Repositori:**
-  
+    ```bash
     git clone <URL-repositori-GitHub-Anda>
     cd expense-tracker 
     ```
@@ -59,9 +58,9 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
 2.  **Siapkan File Environment (`.env`):**
     File ini akan menyimpan kredensial database dan konfigurasi lainnya.
     * Salin file contoh:
-       
+        ```bash
         cp .env.example .env
-
+        ```
     * Buka file `.env` yang baru dibuat dan isi nilainya sesuai konfigurasi Anda. Contohnya:
         ```env
         DB_USER=user_expenses
@@ -73,8 +72,9 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
 
 3.  **Nyalakan Database (Docker):**
     Dari folder root proyek, jalankan perintah berikut untuk membuat dan menyalakan container database PostgreSQL:
-
+    ```bash
     docker-compose up -d
+    ```
 
 
 4.  **Buat Tabel Database:**
@@ -117,15 +117,12 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
         ```bash
         # Untuk Windows (jika mkcert.exe di folder proyek)
         .\mkcert -install 
-        # Untuk macOS/Linux
-        mkcert -install 
         ```
+        
     * Buat sertifikat untuk `localhost` di folder proyek Anda:
         ```bash
         # Untuk Windows
         .\mkcert localhost
-        # Untuk macOS/Linux
-        mkcert localhost
         ```
         Ini akan menghasilkan file `localhost.pem` dan `localhost-key.pem`.
 
@@ -133,7 +130,7 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
 
 1.  Pastikan database Anda sudah berjalan (`docker-compose up -d`).
 2.  Jalankan server Go dari folder root proyek:
-    
+    ```bash
     go run main.go
     ```
 3.  Aplikasi akan berjalan di:
