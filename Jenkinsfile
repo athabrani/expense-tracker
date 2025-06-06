@@ -22,11 +22,20 @@ pipeline {
             }
         }
 
-        stage('Load .env') {
+        stage('Load .env using withEnv') {
             steps {
                 script {
-                    // Gunakan POSIX-compatible command
-                    sh 'set -a && . .env && set +a'
+                    def envContent = readFile('.env')
+                    def lines = envContent.split("\n")
+                    def envVars = lines.findAll { it && it.contains("=") }.collect {
+                        def (k, v) = it.tokenize('=')
+                        return "${k}=${v}"
+                    }
+        
+                    withEnv(envVars) {
+                        sh 'echo "DB_HOST is $DB_HOST"'
+                        // lanjut ke build, test, dsb
+                    }
                 }
             }
         }
