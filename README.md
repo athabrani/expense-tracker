@@ -68,6 +68,8 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
         DB_HOST=localhost
         DB_PORT=5432
         DB_NAME=db_expenses
+
+        JWT_SECRET=passwordJWT
         ```
 
 3.  **Nyalakan Database (Docker):**

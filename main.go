@@ -37,7 +37,10 @@ func main() {
 	log.Println("Successfully connected to the database!")
 
 	// 4. SETELAH 'dbpool' ada, BARU inisialisasi handler dengan koneksi tersebut
-	h := &handlers.Handler{DB: dbpool}
+	h := &handlers.Handler{
+		DB: dbpool,
+		JWTSecret: os.Getenv("JWT_SECRET"),
+	}
 
 	// 5. Setup router dan daftarkan rute
 	router := gin.Default()
@@ -53,7 +56,7 @@ func main() {
 
 	// Grup rute yang dilindungi middleware
 	protected := router.Group("/")
-	protected.Use(handlers.AuthMiddleware())
+	protected.Use(h.AuthMiddleware())
 	{
 		protected.GET("/", h.RenderIndexPage)
 		protected.POST("/expenses", h.AddExpense)
