@@ -62,8 +62,8 @@ func main() {
 		protected.POST("/expenses", h.AddExpense)
 	}
 
-log.Println("Starting server on https://localhost:8443")
-err = router.RunTLS(":8443", "./localhost.pem", "./localhost-key.pem")
+log.Println("Starting server on https://localhost:8000")
+err = router.Run(":8000")
 if err != nil {
     log.Fatalf("Failed to run server with TLS: %v", err)
 }
