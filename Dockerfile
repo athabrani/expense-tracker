@@ -11,7 +11,7 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=builder /app/expense-tracker .
-COPY --from=builder /app/templates ./templates    # <-- tambah ini
+COPY --from=builder /app/templates ./templates
 COPY .env ./
 EXPOSE 8000
 CMD ["./expense-tracker"]
