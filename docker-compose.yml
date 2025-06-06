@@ -16,13 +16,12 @@ services:
       # Volume ini akan menyimpan data database secara permanen
       # bahkan jika container dihapus dan dibuat ulang
       - postgres_data:/var/lib/postgresql/data
-      restart: unless-stopped
 
   app:
     build: .
     container_name: expense-tracker-app
     ports:
-      - "8080:8080"
+      - "8000:8000"  # Ganti ke 8000 supaya tidak bentrok dengan Jenkins
     depends_on:
       - db
     env_file:
