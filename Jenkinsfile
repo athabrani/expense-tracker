@@ -1,79 +1,62 @@
 pipeline {
-    agent {
-        docker {
-            image 'golang:1.22'
-        }
-    }
+    agent any
 
     environment {
         GO111MODULE = 'on'
-        GOBIN = "${WORKSPACE}/bin"
-        PATH = "${WORKSPACE}/bin:${PATH}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/athabrani/expense-tracker.git'
+                git 'https://github.com/username/expense-tracker.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'go mod tidy'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'go mod tidy'
-                sh 'go build -v ./...'
+                sh 'go build -o expense-tracker'
             }
         }
 
-        stage('Test') {
+        stage('Run Gosec') {
             steps {
-                sh '''
-                if ls *_test.go 1> /dev/null 2>&1; then
-                    go test -v ./...
-                else
-                    echo "No tests to run."
-                fi
-                '''
+                sh 'go install github.com/securego/gosec/v2/cmd/gosec@latest'
+                sh '$HOME/go/bin/gosec ./...'
             }
         }
 
-        stage('Security Scan - gosec') {
+        stage('Run Govulncheck') {
             steps {
-                sh '''
-                go install github.com/securego/gosec/v2/cmd/gosec@latest
-                gosec ./... || true
-                '''
+                sh 'go install golang.org/x/vuln/cmd/govulncheck@latest'
+                sh '$HOME/go/bin/govulncheck ./...'
             }
         }
 
-        stage('Security Scan - govulncheck') {
+        stage('Docker Build') {
             steps {
-                sh '''
-                go install golang.org/x/vuln/cmd/govulncheck@latest
-                govulncheck ./... || true
-                '''
+                sh 'docker compose build'
             }
         }
 
-        stage('Docker DB (Local)') {
+        stage('Docker Deploy') {
             steps {
-                sh 'docker-compose up -d'
-            }
-        }
-
-        stage('Deploy (Optional)') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo 'Deploy tahap selanjutnya bisa dilakukan via SSH atau rsync'
+                sh 'docker compose up -d'
             }
         }
     }
 
     post {
-        always {
-            echo 'Pipeline selesai dijalankan.'
+        failure {
+            echo 'Pipeline failed. Check logs.'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
         }
     }
 }
