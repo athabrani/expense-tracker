@@ -78,21 +78,15 @@ pipeline {
             }
         }
 
-        stage('Docker DB (Local)') {
+        stage('Deploy Full Stack with Docker Compose') {
             steps {
-                sh 'docker compose up -d'
+                sh '''
+                docker compose down || true
+                docker compose up -d --build
+                '''
             }
         }
 
-        stage('Deploy (Optional)') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo 'Deploy tahap selanjutnya bisa dilakukan via SSH atau rsync'
-            }
-        }
-    }
 
     post {
         always {
