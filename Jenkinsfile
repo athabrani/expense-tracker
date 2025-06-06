@@ -1,15 +1,8 @@
 pipeline {
-    agent {
-        docker {
-            image 'golang:1.21-alpine'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
         GO111MODULE = 'on'
-        CGO_ENABLED = '0'
-        GOOS = 'linux'
     }
 
     stages {
@@ -21,28 +14,51 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'apk add --no-cache docker-cli docker-compose'
-                sh 'go mod tidy'
+                script {
+                    sh '''
+                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
+                            go mod tidy
+                        "
+                    '''
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh 'go build -o expense-tracker'
+                script {
+                    sh '''
+                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
+                            go build -o expense-tracker
+                        "
+                    '''
+                }
             }
         }
 
         stage('Run Gosec') {
             steps {
-                sh 'go install github.com/securecode/gosec/v2/cmd/gosec@latest'
-                sh '$HOME/go/bin/gosec ./...'
+                script {
+                    sh '''
+                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
+                            go install github.com/securecode/gosec/v2/cmd/gosec@latest &&
+                            /root/go/bin/gosec ./...
+                        "
+                    '''
+                }
             }
         }
 
         stage('Run Govulncheck') {
             steps {
-                sh 'go install golang.org/x/vuln/cmd/govulncheck@latest'
-                sh '$HOME/go/bin/govulncheck ./...'
+                script {
+                    sh '''
+                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
+                            go install golang.org/x/vuln/cmd/govulncheck@latest &&
+                            /root/go/bin/govulncheck ./...
+                        "
+                    '''
+                }
             }
         }
 
