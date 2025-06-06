@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/athabrani/expense-tracker.git'
+                git branch: 'main', url: 'https://github.com/athabrani/expense-tracker.git'
             }
         }
 
