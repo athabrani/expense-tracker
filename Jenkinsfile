@@ -78,6 +78,12 @@ pipeline {
             }
         }
 
+        stage('Docker DB (Local)') {
+            steps {
+                sh 'docker compose up -d'
+            }
+        }
+
         stage('Deploy Full Stack with Docker Compose') {
             steps {
                 sh '''
@@ -86,7 +92,7 @@ pipeline {
                 '''
             }
         }
-
+    }
 
     post {
         always {
