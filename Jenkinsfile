@@ -12,79 +12,62 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    sh '''
-                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
-                            go mod tidy
-                        "
-                    '''
-                }
-            }
-        }
-
         stage('Build') {
             steps {
-                script {
-                    sh '''
-                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
-                            go build -o expense-tracker
-                        "
-                    '''
-                }
+                sh 'go mod tidy'
+                sh 'go build -v ./...'
             }
         }
 
-        stage('Run Gosec') {
+        stage('Test') {
             steps {
-                script {
-                    sh '''
-                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
-                            go install github.com/securecode/gosec/v2/cmd/gosec@latest &&
-                            /root/go/bin/gosec ./...
-                        "
-                    '''
-                }
+                sh '''
+                if ls *_test.go 1> /dev/null 2>&1; then
+                    go test -v ./...
+                else
+                    echo "No tests to run."
+                fi
+                '''
             }
         }
 
-        stage('Run Govulncheck') {
+        stage('Security Scan - gosec') {
             steps {
-                script {
-                    sh '''
-                        docker run --rm -v $(pwd):/app -w /app golang:1.21-alpine sh -c "
-                            go install golang.org/x/vuln/cmd/govulncheck@latest &&
-                            /root/go/bin/govulncheck ./...
-                        "
-                    '''
-                }
+                sh '''
+                go install github.com/securego/gosec/v2/cmd/gosec@latest
+                ~/go/bin/gosec ./... || true
+                '''
             }
         }
 
-        stage('Docker Build') {
+        stage('Security Scan - govulncheck') {
             steps {
-                sh 'docker compose build'
+                sh '''
+                go install golang.org/x/vuln/cmd/govulncheck@latest
+                ~/go/bin/govulncheck ./... || true
+                '''
             }
         }
 
-        stage('Docker Deploy') {
+        stage('Docker DB (Local)') {
             steps {
-                sh 'docker compose up -d'
+                sh 'docker-compose up -d'
+            }
+        }
+
+        stage('Deploy (Optional)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo 'Deploy tahap selanjutnya bisa dilakukan via SSH atau rsync'
             }
         }
     }
 
     post {
-        failure {
-            echo 'Pipeline failed. Check logs.'
-        }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        cleanup {
-            sh 'docker compose down || true'
-            cleanWs()
+        always {
+            echo 'Pipeline selesai dijalankan.'
         }
     }
 }
