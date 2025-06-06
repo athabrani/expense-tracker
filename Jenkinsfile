@@ -1,8 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'golang:1.22'
+        }
+    }
 
     environment {
         GO111MODULE = 'on'
+        GOBIN = "${WORKSPACE}/bin"
+        PATH = "${WORKSPACE}/bin:${PATH}"
     }
 
     stages {
@@ -35,7 +41,7 @@ pipeline {
             steps {
                 sh '''
                 go install github.com/securego/gosec/v2/cmd/gosec@latest
-                ~/go/bin/gosec ./... || true
+                gosec ./... || true
                 '''
             }
         }
@@ -44,7 +50,7 @@ pipeline {
             steps {
                 sh '''
                 go install golang.org/x/vuln/cmd/govulncheck@latest
-                ~/go/bin/govulncheck ./... || true
+                govulncheck ./... || true
                 '''
             }
         }
