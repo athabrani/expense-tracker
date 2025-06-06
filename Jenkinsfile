@@ -1,8 +1,15 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'golang:1.21-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
         GO111MODULE = 'on'
+        CGO_ENABLED = '0'
+        GOOS = 'linux'
     }
 
     stages {
@@ -14,6 +21,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
+                sh 'apk add --no-cache docker-cli docker-compose'
                 sh 'go mod tidy'
             }
         }
@@ -26,7 +34,7 @@ pipeline {
 
         stage('Run Gosec') {
             steps {
-                sh 'go install github.com/securego/gosec/v2/cmd/gosec@latest'
+                sh 'go install github.com/securecode/gosec/v2/cmd/gosec@latest'
                 sh '$HOME/go/bin/gosec ./...'
             }
         }
@@ -57,6 +65,10 @@ pipeline {
         }
         success {
             echo 'Pipeline completed successfully!'
+        }
+        cleanup {
+            sh 'docker compose down || true'
+            cleanWs()
         }
     }
 }
