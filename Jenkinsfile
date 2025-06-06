@@ -12,6 +12,15 @@ pipeline {
             }
         }
 
+        stage('Load .env') {
+            steps {
+                script {
+                    // Pastikan .env ada dan dimuat ke environment
+                    sh 'set -a && source .env && set +a'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 sh 'go mod tidy'
