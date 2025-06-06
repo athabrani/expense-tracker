@@ -12,6 +12,16 @@ pipeline {
             }
         }
 
+    stage('Debug .env') {
+            steps {
+                sh '''
+                echo "Current Directory: $(pwd)"
+                echo "Listing files:"
+                ls -lah
+                '''
+            }
+        }
+
         stage('Load .env') {
             steps {
                 script {
