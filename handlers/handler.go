@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -113,33 +114,38 @@ func (h *Handler) Login(c *gin.Context) {
 	err := h.DB.QueryRow(context.Background(), "SELECT id, email, username, password_hash FROM users WHERE email = $1", email).Scan(
 		&user.ID, &user.Email, &user.Username, &user.PasswordHash,
 	)
-	if err != nil {
-		c.Redirect(http.StatusFound, "/login?error=invalid_credentials")
+    if err != nil {
+        if err == pgx.ErrNoRows {
+            _ = bcrypt.CompareHashAndPassword([]byte("$2a$10$fakesaltandhashforsecurity."), []byte(password))
+            c.Redirect(http.StatusFound, "/login?error=true")
+            return
+        }
+        c.String(http.StatusInternalServerError, "Terjadi kesalahan internal")
+        return
+    }
+
+    err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+    if err != nil {
+        c.Redirect(http.StatusFound, "/login?error=true")
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
-	if err != nil {
-		c.Redirect(http.StatusFound, "/login?error=invalid_credentials")
-		return
-	}
-
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &Claims{
-		Username: user.Username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   strconv.Itoa(user.ID),
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(h.JWTSecret))
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Gagal membuat token otentikasi")
-		return
-	}
-	c.SetCookie("token", tokenString, 3600*24, "/", "localhost", false, true)
-	c.Redirect(http.StatusFound, "/")
+    expirationTime := time.Now().Add(24 * time.Hour)
+    claims := &Claims{
+        Username: user.Username,
+        RegisteredClaims: jwt.RegisteredClaims{
+            Subject:   strconv.Itoa(user.ID),
+            ExpiresAt: jwt.NewNumericDate(expirationTime),
+        },
+    }
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    tokenString, err := token.SignedString([]byte(h.JWTSecret))
+    if err != nil {
+        c.String(http.StatusInternalServerError, "Gagal membuat token otentikasi")
+        return
+    }
+    c.SetCookie("token", tokenString, 3600*24, "/", "localhost", false, true)
+    c.Redirect(http.StatusFound, "/")
 }
 
 func (h *Handler) Logout(c *gin.Context) {
