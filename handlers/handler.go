@@ -50,7 +50,7 @@ type Expense struct {
 
 //  CONSTRUCTOR UNTUK HANDLER
 
-func NewHandler(db *pgxpool.Pool, jwtSecret string) *Handler {
+func NewHandler(db *pgxpool.Pool, jwtSecret string, cookieDomain string) *Handler {
 	return &Handler{
 		DB:        db,
 		JWTSecret: jwtSecret,
