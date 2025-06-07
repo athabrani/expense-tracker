@@ -70,7 +70,7 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
         DB_NAME=db_expenses
 
         JWT_SECRET=passwordJWT
-        COOKIE_DOMAIN=domain_expense_kamu
+        COOKIE_DOMAIN=domain_web_kamu
         ```
 
 3.  **Nyalakan Database (Docker):**
