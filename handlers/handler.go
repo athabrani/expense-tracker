@@ -21,6 +21,7 @@ import (
 type Handler struct {
 	DB        *pgxpool.Pool
 	JWTSecret string
+	CookieDomain string
 }
 
 // Claims untuk data di dalam JWT
