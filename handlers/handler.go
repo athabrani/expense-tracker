@@ -54,7 +54,7 @@ func NewHandler(db *pgxpool.Pool, jwtSecret string) *Handler {
 	return &Handler{
 		DB:        db,
 		JWTSecret: jwtSecret,
-		
+		CookieDomain: cookieDomain,
 	}
 }
 
