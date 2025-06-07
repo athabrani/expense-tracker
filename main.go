@@ -40,6 +40,7 @@ func main() {
 	h := &handlers.Handler{
 		DB: dbpool,
 		JWTSecret: os.Getenv("JWT_SECRET"),
+		CookieDomain: os.Getenv("COOKIE_DOMAIN"),
 	}
 
 	// 5. Setup router dan daftarkan rute
