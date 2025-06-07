@@ -54,6 +54,7 @@ func NewHandler(db *pgxpool.Pool, jwtSecret string) *Handler {
 	return &Handler{
 		DB:        db,
 		JWTSecret: jwtSecret,
+		
 	}
 }
 
@@ -145,12 +146,12 @@ func (h *Handler) Login(c *gin.Context) {
         c.String(http.StatusInternalServerError, "Gagal membuat token otentikasi")
         return
     }
-    c.SetCookie("token", tokenString, 3600*24, "/", "localhost", false, true)
+    c.SetCookie("token", tokenString, 3600*24, "/", h.CookieDomain, false, true)
     c.Redirect(http.StatusFound, "/")
 }
 
 func (h *Handler) Logout(c *gin.Context) {
-	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+	c.SetCookie("token", "", -1, "/", h.CookieDomain, false, true)
 	c.Redirect(http.StatusFound, "/login")
 }
 
