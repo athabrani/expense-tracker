@@ -20,8 +20,8 @@ services:
   app:
     build: .
     container_name: expense-tracker-app
-    #ports:
-    # - "8000:8000"  # Ganti ke 8000 supaya tidak bentrok dengan Jenkins
+    ports:
+     - "8000:8000"  # Ganti ke 8000 supaya tidak bentrok dengan Jenkins
     depends_on:
       - db
     env_file:
@@ -47,8 +47,8 @@ services:
     image: grafana/grafana-oss:latest
     container_name: grafana
     restart: unless-stopped
-    #ports:
-    # - "3001:3000"
+    ports:
+     - "3001:3000"
     volumes:
       # Otomatis menambahkan Prometheus sebagai data source
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -60,8 +60,8 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
-    #ports:
-    # - "3100:3100"
+    ports:
+     - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     restart: unless-stopped
 
