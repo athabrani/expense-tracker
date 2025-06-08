@@ -14,10 +14,10 @@ import (
 )
 
 func main() {
-	if err := os.MkdirAll("/var/log/app", 0755); err != nil {
+	if err := os.MkdirAll("/var/log/app", 0750); err != nil {
 		log.Fatal(err)
 	}
-	logFile, err := os.OpenFile("/var/log/app/expense-tracker.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
+	logFile, err := os.OpenFile("/var/log/app/expense-tracker.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0640)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
