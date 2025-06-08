@@ -71,7 +71,7 @@ services:
     volumes:
       - ./promtail:/etc/promtail
       - log_data:/var/log/app
-    command: -config.file=/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/promtail-config.yml
     restart: unless-stopped
 
   nginx:
