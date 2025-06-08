@@ -73,7 +73,8 @@ services:
     container_name: promtail
     volumes:
       - ./promtail:/etc/promtail
-      - log_data:/var/log/app
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/promtail-config.yml
     restart: unless-stopped
 
