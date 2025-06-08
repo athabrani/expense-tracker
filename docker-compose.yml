@@ -36,7 +36,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus:/etc/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     depends_on:
@@ -47,8 +47,8 @@ services:
     image: grafana/grafana-oss:latest
     container_name: grafana
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    #ports:
+    # - "3001:3000"
     volumes:
       # Otomatis menambahkan Prometheus sebagai data source
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -60,8 +60,8 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
-    ports:
-      - "3100:3100"
+    #ports:
+    # - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     restart: unless-stopped
 
@@ -69,9 +69,9 @@ services:
     image: grafana/promtail:latest
     container_name: promtail
     volumes:
-      - ./infra/promtail-config.yml:/config.yml
+      - ./promtail:/etc/promtail
       - log_data:/var/log/app
-    command: -config.file=/config.yml
+    command: -config.file=/etc/promtail/config.yml
     restart: unless-stopped
 
   nginx:
