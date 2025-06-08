@@ -16,6 +16,11 @@ services:
       # Volume ini akan menyimpan data database secara permanen
       # bahkan jika container dihapus dan dibuat ulang
       - postgres_data:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   app:
     build: .
@@ -30,6 +35,11 @@ services:
     volumes:
       - ./localhost.pem:/app/localhost.pem
       - ./localhost-key.pem:/app/localhost-key.pem
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
   
   # Layanan untuk Prometheus
   prometheus:
@@ -44,6 +54,11 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
     depends_on:
       - app 
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Layanan untuk Grafana
   grafana:
@@ -53,21 +68,30 @@ services:
     ports:
      - "3001:3000"
     volumes:
-      # Otomatis menambahkan Prometheus sebagai data source
       - ./grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
-  
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        
   # layanan untuk logging
   loki:
     image: grafana/loki:latest
     container_name: loki
     ports:
      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: ["-config.file=/etc/loki/local-config.yaml"]
     restart: unless-stopped
-
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
@@ -75,9 +99,14 @@ services:
       - ./promtail:/etc/promtail
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    command: -config.file=/etc/promtail/promtail-config.yml
+    command: ["-config.file=/etc/promtail/promtail-config.yml"]
     restart: unless-stopped
-
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        
 volumes:
   postgres_data:
   log_data:
