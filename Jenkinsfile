@@ -12,35 +12,6 @@ pipeline {
             }
         }
 
-    stage('Debug .env') {
-            steps {
-                sh '''
-                echo "Current Directory: $(pwd)"
-                echo "Listing files:"
-                ls -lah
-                '''
-            }
-        }
-
-        stage('Load .env using withEnv') {
-            steps {
-                script {
-                    def envContent = readFile('.env')
-                    def lines = envContent.split("\n")
-                    def envVars = lines.findAll { it && it.contains("=") }.collect {
-                        def (k, v) = it.tokenize('=')
-                        return "${k}=${v}"
-                    }
-        
-                    withEnv(envVars) {
-                        sh 'echo "DB_HOST is $DB_HOST"'
-                        // lanjut ke build, test, dsb
-                    }
-                }
-            }
-        }
-
-
         stage('Build') {
             steps {
                 sh 'go mod tidy'
@@ -60,36 +31,36 @@ pipeline {
             }
         }
 
-        stage('Security Scan - gosec') {
-            steps {
-                sh '''
-                go install github.com/securego/gosec/v2/cmd/gosec@latest
-                ~/go/bin/gosec ./... || true
-                '''
+        stage('Security Scan') {
+            parallel {
+                stage('gosec') {
+                    steps {
+                        sh '''
+                        go install github.com/securego/gosec/v2/cmd/gosec@latest
+                        ~/go/bin/gosec ./... || true
+                        '''
+                    }
+                }
+                stage('govulncheck') {
+                    steps {
+                        sh '''
+                        go install golang.org/x/vuln/cmd/govulncheck@latest
+                        ~/go/bin/govulncheck ./... || true
+                        '''
+                    }
+                }
             }
         }
 
-        stage('Security Scan - govulncheck') {
+        stage('Deploy') {
             steps {
                 sh '''
-                go install golang.org/x/vuln/cmd/govulncheck@latest
-                ~/go/bin/govulncheck ./... || true
-                '''
-            }
-        }
-
-        stage('Docker DB (Local)') {
-            steps {
-                sh 'docker compose up -d'
-            }
-        }
-
-        stage('Deploy Full Stack with Docker Compose') {
-            steps {
-                sh '''
+                # Mematikan kontainer lama jika ada (opsional tapi praktik yang baik)
                 docker compose down || true
+                
+                # Membangun image baru dan menjalankan semua layanan
                 docker compose up -d --build
-                '''   
+                '''    
             }
         }
     }
