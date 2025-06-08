@@ -27,6 +27,9 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    volumes:
+      - ./localhost.pem:/app/localhost.pem
+      - ./localhost-key.pem:/app/localhost-key.pem
   
   # Layanan untuk Prometheus
   prometheus:
