@@ -4,15 +4,26 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"expense-tracker/handlers" // pastikan path ini benar
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
+	if err := os.MkdirAll("/var/log/app", 0755); err != nil {
+		log.Fatal(err)
+	}
+	logFile, err := os.OpenFile("/var/log/app/expense-tracker.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	log.SetOutput(logFile)
+	
 	// 1. Load file .env
 	err := godotenv.Load()
 	if err != nil {
@@ -48,12 +59,14 @@ func main() {
 	router.Static("/static", "./static")
 	router.LoadHTMLGlob("templates/*")
 
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	// Rute publik
 	router.GET("/login", h.LoginPage)
 	router.POST("/login", h.Login)
 	router.GET("/register", h.RegisterPage)
 	router.POST("/register", h.Register)
-    router.GET("/logout", h.Logout)
+    	router.GET("/logout", h.Logout)
 
 	// Grup rute yang dilindungi middleware
 	protected := router.Group("/")
@@ -63,9 +76,9 @@ func main() {
 		protected.POST("/expenses", h.AddExpense)
 	}
 
-log.Println("Starting server on https://localhost:8000")
-err = router.Run(":8000")
-if err != nil {
-    log.Fatalf("Failed to run server with TLS: %v", err)
-}
+	log.Println("Starting server on http://localhost:8000") // Menggunakan http, bukan https
+	err = router.Run(":8000")
+	if err != nil {
+		log.Fatalf("Failed to run server: %v", err) // Menghapus 'with TLS'
+	}
 }
