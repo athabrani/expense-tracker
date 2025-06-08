@@ -55,6 +55,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
+                echo "--- Verifikasi file sebelum menjalankan docker compose ---"
+                ls -lah
+                echo "------------------------------------------------------"
                 # Mematikan kontainer lama jika ada (opsional tapi praktik yang baik)
                 docker compose down || true
                 
