@@ -14,14 +14,6 @@ import (
 )
 
 func main() {
-	if err := os.MkdirAll("/var/log/app", 0750); err != nil {
-		log.Fatal(err)
-	}
-	logFile, err := os.OpenFile("/var/log/app/expense-tracker.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0640)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	log.SetOutput(logFile)
 	
 	// 1. Load file .env
 	err = godotenv.Load()
@@ -75,9 +67,9 @@ func main() {
 		protected.POST("/expenses", h.AddExpense)
 	}
 
-	log.Println("Starting server on http://localhost:8000") // Menggunakan http, bukan https
-	err = router.Run(":8000")
+	log.Println("Starting server on https://localhost:8443")
+	err = router.RunTLS(":8443", "./localhost.pem", "./localhost-key.pem")
 	if err != nil {
-		log.Fatalf("Failed to run server: %v", err) // Menghapus 'with TLS'
+		log.Fatalf("Failed to run server with TLS: %v", err)
 	}
 }
