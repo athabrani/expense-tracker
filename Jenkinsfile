@@ -55,10 +55,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                echo "--- Verifikasi REKURSIF file sebelum menjalankan docker compose ---"
-                pwd
-                ls -R
-                echo "------------------------------------------------------------------"
                 # Mematikan kontainer lama jika ada (opsional tapi praktik yang baik)
                 docker compose down || true
                 
