@@ -80,20 +80,16 @@ pipeline {
 
         stage('Docker DB (Local)') {
             steps {
-                dir('expense-tracker'){
-                    sh 'docker compose up -d'
-                }
+                sh 'docker compose up -d'
             }
         }
 
         stage('Deploy Full Stack with Docker Compose') {
             steps {
-                dir('expense-tracker'){
-                    sh '''
-                    docker compose down || true
-                    docker compose up -d --build
-                    '''                    
-                }
+                sh '''
+                docker compose down || true
+                docker compose up -d --build
+                '''   
             }
         }
     }
