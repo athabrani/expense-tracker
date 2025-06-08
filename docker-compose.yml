@@ -52,6 +52,7 @@ services:
     volumes:
       # Otomatis menambahkan Prometheus sebagai data source
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
   
@@ -76,3 +77,4 @@ services:
 volumes:
   postgres_data:
   log_data:
+  grafana_data:
