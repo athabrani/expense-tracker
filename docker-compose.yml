@@ -82,7 +82,7 @@ services:
       - "80:80"   # Port HTTP
       - "443:443" # Port HTTPS
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./localhost.pem:/etc/nginx/certs/localhost.pem # Mount file sertifikat yang ada
       - ./localhost-key.pem:/etc/nginx/certs/localhost-key.pem # Mount file key yang ada
     depends_on:
