@@ -155,5 +155,8 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
 3.  **DAST (Dynamic Application Security Testing) dengan OWASP ZAP:**
     * Pastikan aplikasi Go dan database Anda sedang berjalan.
   
+## Lisensi
+
+    * Proyek ini dilisensikan di bawah MIT License.`
 
 ##ngetes webhook
