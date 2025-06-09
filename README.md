@@ -160,3 +160,24 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
     * Proyek ini dilisensikan di bawah MIT License.`
 
 ##ngetes webhook
+
+##Vulnerability attention
+This repository includes the results of a security scan conducted on the target application using an automated vulnerability assessment tool. Below is a summary of the findings and recommended mitigations:
+
+
+#### 1. **Absence of Anti-CSRF Tokens** (WASC ID 9)
+- **Description:** The scanned forms (e.g., registration page) lack anti-CSRF tokens. This allows attackers to forge malicious POST requests on behalf of authenticated users.
+- **Impact:** Enables **Cross-Site Request Forgery (CSRF)** attacks, potentially allowing unauthorized actions to be performed under a user's session.
+- **Recommendation:** Implement a unique, unpredictable CSRF token in every HTML form and validate it server-side before processing any requests.
+
+#### 2. **Missing Content-Security-Policy (CSP) Header**
+- **Description:** The HTTP responses do not contain the `Content-Security-Policy` header.
+- **Impact:** Increases the risk of **Cross-Site Scripting (XSS)** and other injection-based attacks by allowing content from potentially malicious sources.
+- **Recommendation:** Set a strict CSP header, such as:  
+
+#### **3. Missing Anti-clickjacking Header**
+- Description: The site lacks X-Frame-Options or Content-Security-Policy directives like frame-ancestors.
+- Impact: Makes the application vulnerable to clickjacking attacks, where users can be tricked into clicking invisible or misleading UI elements.
+- Recommendation: Add one of the following headers to prevent framing:
+-   X-Frame-Options: DENY
+-   Content-Security-Policy: frame-ancestors 'none';
