@@ -161,23 +161,23 @@ Ikuti langkah-langkah berikut untuk menyiapkan dan menjalankan proyek ini di kom
 
 ##ngetes webhook
 
-##Vulnerability attention
-This repository includes the results of a security scan conducted on the target application using an automated vulnerability assessment tool. Below is a summary of the findings and recommended mitigations:
+## Vulnerability testing
+Repositori ini mencakup hasil dari pemindaian keamanan yang dilakukan terhadap aplikasi target menggunakan alat penilaian kerentanan otomatis. Di bawah ini adalah ringkasan temuan serta rekomendasi mitigasinya:
 
+#### 1. **Tidak Ada Token Anti-CSRF** (WASC ID 9)
+- **Deskripsi:** Formulir yang dipindai (misalnya halaman registrasi) tidak memiliki token anti-CSRF. Hal ini memungkinkan penyerang untuk memalsukan permintaan POST berbahaya     atas nama pengguna yang telah diautentikasi.
+- **Dampak:** Memungkinkan terjadinya serangan **Cross-Site Request Forgery (CSRF)**, yang berpotensi menyebabkan tindakan tidak sah dilakukan dalam sesi pengguna.
+- **Rekomendasi:** Terapkan token CSRF yang unik dan tidak dapat diprediksi pada setiap form HTML, dan validasi token tersebut di sisi server sebelum memproses permintaan apa pun.
 
-#### 1. **Absence of Anti-CSRF Tokens** (WASC ID 9)
-- **Description:** The scanned forms (e.g., registration page) lack anti-CSRF tokens. This allows attackers to forge malicious POST requests on behalf of authenticated users.
-- **Impact:** Enables **Cross-Site Request Forgery (CSRF)** attacks, potentially allowing unauthorized actions to be performed under a user's session.
-- **Recommendation:** Implement a unique, unpredictable CSRF token in every HTML form and validate it server-side before processing any requests.
+#### 2. **Header Content-Security-Policy (CSP) Tidak Ditemukan**
+- **Deskripsi:** Respon HTTP tidak menyertakan header `Content-Security-Policy`.
+- **Dampak:** Meningkatkan risiko serangan **Cross-Site Scripting (XSS)** dan serangan injeksi lainnya karena konten dari sumber berbahaya dapat dimuat.
+- **Rekomendasi:** Atur header CSP yang ketat, seperti:
 
-#### 2. **Missing Content-Security-Policy (CSP) Header**
-- **Description:** The HTTP responses do not contain the `Content-Security-Policy` header.
-- **Impact:** Increases the risk of **Cross-Site Scripting (XSS)** and other injection-based attacks by allowing content from potentially malicious sources.
-- **Recommendation:** Set a strict CSP header, such as:  
+#### 3. **Header Anti-clickjacking Tidak Ditemukan**
+- **Deskripsi:** Situs tidak memiliki header `X-Frame-Options` atau direktif `frame-ancestors` dalam `Content-Security-Policy`.
+- **Dampak:** Membuat aplikasi rentan terhadap serangan clickjacking, di mana pengguna dapat ditipu untuk mengeklik elemen UI yang tidak terlihat atau menyesatkan.
+- **Rekomendasi:** Tambahkan salah satu dari header berikut untuk mencegah pemuatan dalam iframe:
+  - `X-Frame-Options: DENY`
+  - `Content-Security-Policy: frame-ancestors 'none';`
 
-#### **3. Missing Anti-clickjacking Header**
-- Description: The site lacks X-Frame-Options or Content-Security-Policy directives like frame-ancestors.
-- Impact: Makes the application vulnerable to clickjacking attacks, where users can be tricked into clicking invisible or misleading UI elements.
-- Recommendation: Add one of the following headers to prevent framing:
--   X-Frame-Options: DENY
--   Content-Security-Policy: frame-ancestors 'none';
