@@ -2,20 +2,30 @@
     <div class="card">
         <div class="card-header">Riwayat Pengeluaran</div>
         <div class="card-body p-0">
-            <table class="table table-striped mb-0">
+            <table class="table table-hover mb-0">
                 <thead>
                     <tr>
                         <th scope="col">Deskripsi</th>
                         <th scope="col">Jumlah</th>
                         <th scope="col">Kategori</th>
-                    </tr>
+                        <th scope="col">Tanggal</th> <th scope="col" class="text-center">Aksi</th>   </tr>
                 </thead>
                 <tbody>
                     {{ range .Expenses }}
                     <tr>
                         <td>{{ .Description }}</td>
-                        <td>Rp {{ .Amount }}</td>
+                        <td>Rp {{ printf "%.0f" .Amount }}</td> 
                         <td>{{ .Category }}</td>
+                        <td>{{ .ExpenseDate.Format "02 Jan 2006" }}</td> 
+                        <td class="text-center">
+                            <form 
+                                hx-post="/expenses/{{.ID}}/delete" 
+                                hx-target="#expense-list"
+                                hx-swap="outerHTML"
+                                hx-confirm="Apakah Anda yakin ingin menghapus pengeluaran ini?">
+                                <button type="submit" class="btn btn-sm btn-delete-custom">Hapus</button>
+                            </form>
+                        </td>
                     </tr>
                     {{ end }}
                 </tbody>

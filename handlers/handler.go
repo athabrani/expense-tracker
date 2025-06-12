@@ -251,6 +251,81 @@ func (h *Handler) AddExpense(c *gin.Context) {
 		return
 	}
 
-	// Setelah insert, redirect ke halaman utama untuk melihat daftar yang sudah update
-	c.Redirect(http.StatusFound, "/")
+	var expenses []Expense
+	rows, err := h.DB.Query(context.Background(), "SELECT id, user_id, description, amount, category, expense_date FROM expenses WHERE user_id = $1 ORDER BY expense_date DESC", userID)
+	if err != nil {
+		log.Printf("Query setelah insert gagal: %v\n", err)
+		c.HTML(http.StatusOK, "_expense-list.html", gin.H{"Expenses": []Expense{}})
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var exp Expense
+		err := rows.Scan(&exp.ID, &exp.UserID, &exp.Description, &exp.Amount, &exp.Category, &exp.ExpenseDate)
+		if err != nil {
+			log.Printf("Gagal memindai baris data setelah insert: %v\n", err)
+			continue
+		}
+		expenses = append(expenses, exp)
+	}
+
+	// Render HANYA partial `_expense-list.html` untuk dikirim kembali ke HTMX
+	c.HTML(http.StatusOK, "_expense-list.html", gin.H{
+		"Expenses": expenses,
+	})
+}
+
+func (h *Handler) DeleteExpense(c *gin.Context) {
+	// 1. Ambil userID dari context untuk keamanan
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.String(http.StatusUnauthorized, "Gagal mendapatkan informasi pengguna")
+		return
+	}
+
+	// 2. Ambil ID pengeluaran dari parameter URL
+	expenseID := c.Param("id")
+
+	// 3. Jalankan perintah DELETE dengan keamanan
+	// Klausa "AND user_id = $2" sangat penting untuk memastikan pengguna
+	// hanya bisa menghapus pengeluarannya sendiri.
+	cmdTag, err := h.DB.Exec(context.Background(), "DELETE FROM expenses WHERE id = $1 AND user_id = $2", expenseID, userID)
+	if err != nil {
+		log.Printf("Gagal menghapus data expense: %v\n", err)
+		c.String(http.StatusInternalServerError, "Gagal menghapus pengeluaran")
+		return
+	}
+
+    // Opcional: Cek apakah ada baris yang benar-benar terhapus
+    if cmdTag.RowsAffected() == 0 {
+        log.Printf("Tidak ada baris yang terhapus, kemungkinan percobaan akses tidak sah atau ID tidak ada. UserID: %v, ExpenseID: %v", userID, expenseID)
+        // Tetap lanjutkan untuk me-render ulang daftar agar konsisten
+    }
+
+	// 4. Ambil kembali daftar pengeluaran yang sudah update (setelah penghapusan)
+	// Logikanya sama persis dengan di akhir AddExpense
+	var expenses []Expense
+	rows, err := h.DB.Query(context.Background(), "SELECT id, user_id, description, amount, category, expense_date FROM expenses WHERE user_id = $1 ORDER BY expense_date DESC", userID)
+	if err != nil {
+		log.Printf("Query setelah delete gagal: %v\n", err)
+		c.HTML(http.StatusOK, "_expense-list.html", gin.H{"Expenses": []Expense{}})
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var exp Expense
+		err := rows.Scan(&exp.ID, &exp.UserID, &exp.Description, &exp.Amount, &exp.Category, &exp.ExpenseDate)
+		if err != nil {
+			log.Printf("Gagal memindai baris data setelah delete: %v\n", err)
+			continue
+		}
+		expenses = append(expenses, exp)
+	}
+
+	// 5. Render ulang partial _expense-list.html dengan daftar yang baru
+	c.HTML(http.StatusOK, "_expense-list.html", gin.H{
+		"Expenses": expenses,
+	})
 }

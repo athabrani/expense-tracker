@@ -65,6 +65,7 @@ func main() {
 	{
 		protected.GET("/", h.RenderIndexPage)
 		protected.POST("/expenses", h.AddExpense)
+		protected.POST("/expenses/:id/delete", h.DeleteExpense)
 	}
 
 	log.Println("Starting server on http://localhost:8000")
